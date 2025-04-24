@@ -9,3 +9,8 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
+
+  # Beook Solutions
+  beook-solutions:
+    image: ghcr.io/marekvonrogall/tools/beook-solutions:latest
+    container_name: beook-solutions
