@@ -1,1 +1,6 @@
-services: {}
+services:
+  # Beook Solutions
+  beook-solutions:
+    build:
+      context: ./src/BeookSolutions
+    image: ghcr.io/${IMAGE_NAME}/beook-solutions:latest
