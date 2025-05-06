@@ -1,0 +1,6 @@
+@MusicService_HostAddress = http://localhost:5001
+
+GET {{MusicService_HostAddress}}/Music/ping/
+Accept: application/json
+
+###
