@@ -3,3 +3,9 @@ body {
   background-color: #f8f9fa;
   margin: 2rem;
 }
+
+#status {
+  margin-top: 1rem;
+  font-weight: bold;
+  color: green;
+}
