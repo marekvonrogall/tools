@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text.Json;
+using Microsoft.AspNetCore.StaticFiles;
 using MusicService;
 
 namespace MusicService.Controllers;
@@ -12,6 +13,8 @@ public class MusicController : ControllerBase
     private readonly IWebHostEnvironment _env;
     private readonly MusicLibrary _musicLibrary;
     private readonly HttpClient _httpClient;
+    private readonly FileExtensionContentTypeProvider _contentTypeProvider = new FileExtensionContentTypeProvider();
+
 
     public MusicController(IWebHostEnvironment env, MusicLibrary musicLibrary, HttpClient httpClient)
     {
@@ -54,7 +57,7 @@ public class MusicController : ControllerBase
             while (Path.HasExtension(baseName))
                 baseName = Path.GetFileNameWithoutExtension(baseName);
             var searchTerm = Uri.EscapeDataString(baseName);
-´
+
             var apiUrl = $"https://itunes.apple.com/search?term={searchTerm}&media=music&limit=1";
             var json = await _httpClient.GetStringAsync(apiUrl);
             using var doc = JsonDocument.Parse(json);
@@ -81,7 +84,7 @@ public class MusicController : ControllerBase
             // API fetch failed
         }
 
-        var metadata = new MusicFileMetadata
+        MusicFileMetadata metadata = new MusicFileMetadata
         {
             FileName = fileName,
             Path = $"/UploadedMusic/{fileName}",
@@ -98,4 +101,41 @@ public class MusicController : ControllerBase
 
     [HttpGet("library")]
     public IActionResult GetLibrary() => Ok(_musicLibrary.StoredMusicLibrary);
+
+    [HttpDelete("delete")]
+    public IActionResult Delete([FromQuery] string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName)) {
+            return BadRequest("fileName is required");
+        }
+        MusicFileMetadata item = _musicLibrary.StoredMusicLibrary.FirstOrDefault(m => m.FileName == fileName);
+        if (item != null) {
+            _musicLibrary.StoredMusicLibrary.Remove(item);
+        }
+        string uploadsPath = Path.Combine(_env.ContentRootPath, "UploadedMusic");
+        string filePath = Path.Combine(uploadsPath, fileName);
+        if (System.IO.File.Exists(filePath)) {
+            System.IO.File.Delete(filePath);
+        }
+        return Ok();
+    }
+    
+    [HttpGet("stream")]
+    public IActionResult Stream([FromQuery] string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName)) {
+            return BadRequest("fileName is required");
+        }
+        string uploadsPath = Path.Combine(_env.ContentRootPath, "UploadedMusic");
+        string filePath = Path.Combine(uploadsPath, fileName);
+        if (!System.IO.File.Exists(filePath)) {
+            return NotFound();
+        }
+        string contentType;
+        if (!_contentTypeProvider.TryGetContentType(fileName, out contentType)) {
+            contentType = "application/octet-stream";
+        }
+        FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        return File(fs, contentType, enableRangeProcessing: true);
+    }
 }

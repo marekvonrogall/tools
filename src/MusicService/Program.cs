@@ -16,6 +16,7 @@ builder.Services.AddCors(options =>
 
 builder.WebHost.ConfigureKestrel((context, options) =>
 {
+    options.Limits.MaxRequestBodySize = 1024 * 1024 * 100; // 100 MB
     options.Listen(IPAddress.Any, 5001);
 });
 
