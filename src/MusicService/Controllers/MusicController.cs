@@ -44,24 +44,33 @@ public class MusicController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        // Default metadata
+        MusicFileMetadata metadata = await ExtractMetadataAsync(filePath, fileName);
+
+        _musicLibrary.StoredMusicLibrary.Add(metadata);
+        return Ok(metadata);
+    }
+
+    private async Task<MusicFileMetadata> ExtractMetadataAsync(string filePath, string fileName)
+    {
         string title = "Unknown Title";
         string artist = "Unknown Artist";
         string album = "Unknown Album";
         double durationSeconds = 0;
         string coverUrl = null;
 
-        try // Get metadata from iTunes
+        try
         {
-            var baseName = Path.GetFileName(fileName);
-            while (Path.HasExtension(baseName))
+            string baseName = Path.GetFileName(fileName);
+            while (Path.HasExtension(baseName)) { // for files like .flac.m4a
                 baseName = Path.GetFileNameWithoutExtension(baseName);
-            var searchTerm = Uri.EscapeDataString(baseName);
+            }
+            string searchTerm = Uri.EscapeDataString(baseName);
 
-            var apiUrl = $"https://itunes.apple.com/search?term={searchTerm}&media=music&limit=1";
+            string apiUrl = $"https://itunes.apple.com/search?term={searchTerm}&media=music&limit=1";
             var json = await _httpClient.GetStringAsync(apiUrl);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
+
             if (root.TryGetProperty("results", out var results) && results.GetArrayLength() > 0)
             {
                 var item = results[0];
@@ -74,9 +83,7 @@ public class MusicController : ControllerBase
                 if (item.TryGetProperty("trackTimeMillis", out var tmillis) && tmillis.TryGetInt64(out var ms))
                     durationSeconds = ms / 1000.0;
                 if (item.TryGetProperty("artworkUrl100", out var artUrl))
-                {
-                    coverUrl = artUrl.GetString().Replace("100x100bb.jpg", "600x600bb.jpg");
-                }
+                    coverUrl = artUrl.GetString()?.Replace("100x100bb.jpg", "600x600bb.jpg");
             }
         }
         catch
@@ -84,7 +91,7 @@ public class MusicController : ControllerBase
             // API fetch failed
         }
 
-        MusicFileMetadata metadata = new MusicFileMetadata
+        return new MusicFileMetadata
         {
             FileName = fileName,
             Path = $"/UploadedMusic/{fileName}",
@@ -94,9 +101,23 @@ public class MusicController : ControllerBase
             Duration = durationSeconds,
             CoverUrl = coverUrl
         };
+    }
 
-        _musicLibrary.StoredMusicLibrary.Add(metadata);
-        return Ok(metadata);
+    public async Task RefreshLibrary()
+    {
+        var uploadsPath = Path.Combine(_env.ContentRootPath, "UploadedMusic");
+        if (!Directory.Exists(uploadsPath))
+            return;
+
+        var files = Directory.GetFiles(uploadsPath);
+        _musicLibrary.StoredMusicLibrary.Clear();
+
+        foreach (var filePath in files)
+        {
+            var fileName = Path.GetFileName(filePath);
+            var metadata = await ExtractMetadataAsync(filePath, fileName);
+            _musicLibrary.StoredMusicLibrary.Add(metadata);
+        }
     }
 
     [HttpGet("library")]

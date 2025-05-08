@@ -41,4 +41,10 @@ app.UseStaticFiles();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var controller = scope.ServiceProvider.GetRequiredService<MusicController>();
+    await controller.RefreshLibrary();
+}
+
 app.Run();
