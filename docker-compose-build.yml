@@ -4,9 +4,3 @@ services:
     build:
       context: ./src/BeookSolutions
     image: ghcr.io/${IMAGE_NAME}/beook-solutions:latest
-
-  # Music Service
-  music-service:
-    build:
-      context: ./src/MusicService
-    image: ghcr.io/${IMAGE_NAME}/music-service:latest
