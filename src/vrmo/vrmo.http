@@ -1,0 +1,6 @@
+@vrmo_HostAddress = http://localhost:5004
+
+GET {{vrmo_HostAddress}}/VRMO/
+Accept: application/json
+
+###
