@@ -1,6 +1,10 @@
 using System.Net;
+using vrmo.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = Environment.GetEnvironmentVariable("VRMO_DB_CONNECTION");
 
 builder.Services.AddCors(options =>
 {
@@ -10,6 +14,11 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+});
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
 builder.WebHost.ConfigureKestrel((context, options) =>
