@@ -1,5 +1,6 @@
 using System.Net;
 using vrmo.Data;
+using vrmo.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -36,6 +37,8 @@ builder.WebHost.ConfigureKestrel((context, options) =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddScoped<PasswordHasherService>();
 
 builder.Services.AddAuthentication(options =>
 {
