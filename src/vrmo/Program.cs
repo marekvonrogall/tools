@@ -64,6 +64,9 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
