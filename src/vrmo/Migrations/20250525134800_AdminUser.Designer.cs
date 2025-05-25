@@ -11,8 +11,8 @@ using vrmo.Data;
 namespace vrmo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250524214826_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250525134800_AdminUser")]
+    partial class AdminUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,6 +52,15 @@ namespace vrmo.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsAdmin = true,
+                            PasswordHash = "AQAAAAIAAYagAAAAEO0O2GOnblGaDNrxh/Y127k9bmn18NtQAHYwVDHG2m331DBJGAepI6CVuxTZYZ/G9g==",
+                            Username = "vrmo-admin"
+                        });
                 });
 #pragma warning restore 612, 618
         }

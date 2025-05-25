@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace vrmo.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AdminUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,6 +35,11 @@ namespace vrmo.Migrations
                     table.PrimaryKey("PK_Users", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "GuestExpiresAt", "IsAdmin", "PasswordHash", "TwoFactorSecret", "Username" },
+                values: new object[] { 1, null, true, "AQAAAAIAAYagAAAAEO0O2GOnblGaDNrxh/Y127k9bmn18NtQAHYwVDHG2m331DBJGAepI6CVuxTZYZ/G9g==", null, "vrmo-admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Username",

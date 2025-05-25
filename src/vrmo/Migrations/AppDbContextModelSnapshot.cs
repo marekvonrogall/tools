@@ -49,6 +49,15 @@ namespace vrmo.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsAdmin = true,
+                            PasswordHash = "AQAAAAIAAYagAAAAEO0O2GOnblGaDNrxh/Y127k9bmn18NtQAHYwVDHG2m331DBJGAepI6CVuxTZYZ/G9g==",
+                            Username = "vrmo-admin"
+                        });
                 });
 #pragma warning restore 612, 618
         }

@@ -5,8 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+DotNetEnv.Env.Load();
 
 var connectionString = Environment.GetEnvironmentVariable("VRMO_DB_CONNECTION");
 var issuer = Environment.GetEnvironmentVariable("VRMO_JWT_ISSUER");
