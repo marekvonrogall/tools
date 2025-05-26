@@ -1,13 +1,13 @@
-using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace vrmo.Dto
 {
     public class LoginRequest
     {
-        [JsonPropertyName("username")]
+        [Required]
         public string Username { get; set; }
         
-        [JsonPropertyName("password")]
+        [Required]
         public string Password { get; set; }
     }
 }
